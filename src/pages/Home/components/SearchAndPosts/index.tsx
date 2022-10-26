@@ -1,70 +1,82 @@
+import React, { useContext, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { GithubBlogContext } from '../../../../contexts/GithubBlogContext'
 import { Article, Input, PostsContainer, Publications } from './styles'
 
 export function SearchAndPosts() {
+  const { issues, githubIssuesFetch } = useContext(GithubBlogContext)
+  const [inputValue, setInputValue] = useState('')
+
   const navigate = useNavigate()
-  function handleShowPost() {
-    navigate('/post')
+  function handleShowPost(event: React.MouseEvent<HTMLElement, MouseEvent>) {
+    const idPost = event.currentTarget.id
+    navigate(`/post/${idPost}`)
   }
 
-  const postContent = `Programming languages all have built-in data structures, but these
-  often differ from one language to another. This article attempts to
-  list the built-in data structures available in JavaScript and what
-  properties they have. These can be used to build other data
-  structures. Wherever possible, comparisons with other languages are
-  drawn. Dynamic typing JavaScript is a loosely typed and dynamic
-  language. Variables in JavaScript are not directly associated with
-  any particular value type, and any variable can be assigned (and
-  re-assigned) values of all types: let foo = 42; // foo is now a
-  number foo = bar; // foo is now a string foo = true; // foo is now a
-  boolean`
+  async function handleFilterIssuePost(
+    event: React.FormEvent<HTMLFormElement>,
+  ) {
+    event.preventDefault()
 
-  const postContentCut =
-    postContent.length > 185
-      ? postContent.substring(0, 185) + '...'
-      : postContent
+    const query = inputValue.split(' ').filter(Boolean)
+
+    if (issues.length < 1) {
+      return await githubIssuesFetch(query.join('%20'))
+    }
+
+    if (query.length < 1) {
+      setInputValue('')
+      return null
+    }
+
+    await githubIssuesFetch(query.join('%20'))
+
+    setInputValue('')
+  }
 
   return (
     <section>
       <Publications>
         <span>Publicações</span>
-        <span>6 publicações</span>
+        <span>
+          {issues.length === 1
+            ? '1 publicação'
+            : `${issues.length} publicações`}
+        </span>
       </Publications>
 
-      <Input type="text" placeholder="Buscar conteúdo" />
+      <form onSubmit={handleFilterIssuePost}>
+        <Input
+          type="text"
+          placeholder="Buscar conteúdo"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+        />
+      </form>
 
       <PostsContainer>
-        <Article onClick={handleShowPost}>
-          <div>
-            <h1>JavaScript data types and data structures</h1>
-            <span>há 1 dia</span>
-          </div>
-          <p>{postContentCut}</p>
-        </Article>
+        {issues.map((issue) => {
+          const postContent = issue.postContent
 
-        <Article>
-          <div>
-            <h1>JavaScript data types and data structures</h1>
-            <span>há 1 dia</span>
-          </div>
-          <p>{postContentCut}</p>
-        </Article>
+          const postContentCut =
+            postContent.length > 185
+              ? postContent.substring(0, 185) + '...'
+              : postContent
 
-        <Article>
-          <div>
-            <h1>JavaScript data types and data structures</h1>
-            <span>há 1 dia</span>
-          </div>
-          <p>{postContentCut}</p>
-        </Article>
-
-        <Article>
-          <div>
-            <h1>JavaScript data types and data structures</h1>
-            <span>há 1 dia</span>
-          </div>
-          <p>{postContentCut}</p>
-        </Article>
+          return (
+            <Article
+              onClick={(e) => handleShowPost(e)}
+              key={issue.number}
+              id={String(issue.number)}
+            >
+              <div>
+                <h1>{issue.title}</h1>
+                <span>{issue.createdAt}</span>
+              </div>
+              <p>{postContentCut}</p>
+            </Article>
+          )
+        })}
       </PostsContainer>
     </section>
   )

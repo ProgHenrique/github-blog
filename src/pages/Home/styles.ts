@@ -24,6 +24,7 @@ export const ProfileSection = styled.section`
   }
 
   #profileInformations {
+    width: 100%;
     display: flex;
     flex-direction: column;
     margin-top: 0.5rem;

@@ -17,21 +17,24 @@ import {
 
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import { useCallback, useContext, useEffect } from 'react'
+import { GithubBlogContext } from '../../contexts/GithubBlogContext'
+import { useParams } from 'react-router-dom'
 
 export function Post() {
-  const markdown = `
-  ### 👋Oii me chamo Henrique Ramos, 21
+  const { postInfos, issuePostFetch } = useContext(GithubBlogContext)
+  const { idPost } = useParams()
 
-  Sempre fui um aficionado por
-  tecnologia e super curioso, e foram esses pilares que trouxeram até aqui.
-  Me tornar um Dev Back-end nunca esteve tão perto. Acredito que
-  você também seja um apaixonado(a) vamos caminhar juntos?🧑‍💻🏆
+  const getPostData = useCallback(async () => {
+    await issuePostFetch(Number(idPost))
+  }, [idPost, issuePostFetch])
 
-  ## Tecnologies of my day
+  useEffect(() => {
+    getPostData()
+  }, [getPostData])
 
-  ### Contact me
-  [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/henrique-ramos-24637a184/)
-  `
   return (
     <MainContainer>
       <PostHeader>
@@ -40,30 +43,54 @@ export function Post() {
             <FontAwesomeIcon icon={faChevronLeft} />
             VOLTAR
           </Link>
-          <Link href="">
+          <Link href={postInfos.issueURL}>
             VER NO GITHUB
             <FontAwesomeIcon icon={faArrowUpRightFromSquare} />
           </Link>
         </div>
 
-        <h1 id="postTitle">JavaScript data types and data structures</h1>
+        <h1 id="postTitle">{postInfos.title}</h1>
 
         <IconsInformation>
           <span>
             <FontAwesomeIcon icon={faGithub} className="Icons" />
-            ProgHenrique
+            {postInfos.user}
           </span>
           <span>
             <FontAwesomeIcon icon={faCalendarDay} className="Icons" />
-            Há 1 dia
+            {postInfos.createAt}
           </span>
           <span>
-            <FontAwesomeIcon icon={faComment} className="Icons" /> 5 comentários
+            <FontAwesomeIcon icon={faComment} className="Icons" />{' '}
+            {postInfos.comments} comentários
           </span>
         </IconsInformation>
       </PostHeader>
       <PostContent>
-        <ReactMarkdown children={markdown} remarkPlugins={[remarkGfm]} />
+        <ReactMarkdown
+          children={postInfos.postContent}
+          className="line-break"
+          components={{
+            code({ node, inline, className, children, ...props }) {
+              const match = /language-(\w+)/.exec(className || '')
+
+              return !inline && match ? (
+                <SyntaxHighlighter
+                  style={dracula as {}}
+                  PreTag="div"
+                  language={match[1]}
+                  children={String(children).replace(/\n$/, '')}
+                  {...props}
+                />
+              ) : (
+                <code className={className || ''} {...props}>
+                  {children}
+                </code>
+              )
+            },
+          }}
+          remarkPlugins={[remarkGfm]}
+        />
       </PostContent>
     </MainContainer>
   )

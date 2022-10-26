@@ -31,7 +31,6 @@ export const PostHeader = styled.section`
 export const Link = styled.a`
   display: flex;
   text-decoration: inherit;
-  color: inherit;
   height: 1.1875rem;
   gap: 0.5rem;
   align-items: center;
@@ -65,4 +64,18 @@ export const IconsInformation = styled.div`
 
 export const PostContent = styled.section`
   padding: 2.5rem 2rem;
+
+  .line-break {
+    white-space: pre-wrap;
+  }
+
+  a {
+    color: ${(props) => props.theme.blue};
+    text-decoration: inherit;
+    &:link,
+    &:hover {
+      color: ${(props) => props.theme.blue};
+      text-decoration: inherit;
+    }
+  }
 `

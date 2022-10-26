@@ -13,42 +13,41 @@ import {
 } from './styles'
 import { faGithub } from '@fortawesome/free-brands-svg-icons'
 import { SearchAndPosts } from './components/SearchAndPosts'
+import { useContext } from 'react'
+import { GithubBlogContext } from '../../contexts/GithubBlogContext'
+
+const userName = String(import.meta.env.VITE_GITHUB_PROFILE)
 
 export function Home() {
+  const { userInfos } = useContext(GithubBlogContext)
   return (
     <MainContainer>
       <ProfileSection>
-        <img
-          src="https://avatars.githubusercontent.com/u/86138985?v=4"
-          alt=""
-          width={148}
-        />
+        <img src={userInfos.avatar_URL} alt="" width={148} />
         <div id="profileInformations">
           <GithubName>
-            <strong>Henrique Ramos</strong>
-            <Link href="https://github.com/ProgHenrique" target="_blank">
+            <strong>{userInfos.name}</strong>
+            <Link href={`https://github.com/${userName}`} target="_blank">
               GITHUB
               <FontAwesomeIcon icon={faArrowUpRightFromSquare} />
             </Link>
           </GithubName>
-          <p>
-            Tristique volutpat pulvinar vel massa, pellentesque egestas. Eu
-            viverra massa quam dignissim aenean malesuada suscipit. Nunc,
-            volutpat pulvinar vel mass.
-          </p>
+          <p id="descriptionProfile">{userInfos.bio}</p>
 
           <IconsInformation>
             <span>
               <FontAwesomeIcon icon={faGithub} className="Icons" />
-              ProgHenrique
+              {userName}
             </span>
             <span>
               <FontAwesomeIcon icon={faBuilding} className="Icons" />
-              Rocketseat
+              {userInfos.company === null ? 'Anyone' : userInfos.company}
             </span>
             <span>
               <FontAwesomeIcon icon={faUserGroup} className="Icons" />
-              32 seguidores
+              {userInfos.followers === 1
+                ? '1 seguidor'
+                : `${userInfos.followers} seguidores`}
             </span>
           </IconsInformation>
         </div>
