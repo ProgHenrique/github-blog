@@ -22,6 +22,7 @@ Github blog, é um blog pessoal que consome a <a href="https://aws.amazon.com/pt
 
 - Clone o repositório
 - Execute `npm install` ou `yarn` no terminal para instalar as dependências
+- Ajuste o arquivo `.env.example` para `.env` e aplique as suas credenciais 
 - Execute `npm run dev` ou `yarn dev` para subir a aplicação
 - Siga o link indicado no `terminal`
 
